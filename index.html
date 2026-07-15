@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Orbit</title>
+		<link rel="stylesheet" href="./styles.css" />
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "https://unpkg.com/three@0.166.1/build/three.module.js",
+					"three/addons/": "https://unpkg.com/three@0.166.1/examples/jsm/"
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<canvas id="scene" aria-label="Interactive solar system"></canvas>
+		<div id="tooltip" hidden></div>
+
+		<aside>
+			<header>
+				<h1>Orbit</h1>
+				<button id="reset" type="button">Reset view</button>
+			</header>
+
+			<div class="actions">
+				<button id="play" class="primary" type="button">Pause</button>
+				<button id="add-planet" type="button">+ Planet</button>
+				<button id="add-moon" type="button">+ Moon</button>
+			</div>
+
+			<label class="speed">
+				<span>Speed <output id="speed-value">1x</output></span>
+				<input
+					id="speed"
+					type="range"
+					min="0.1"
+					max="40"
+					step="0.1"
+					value="1"
+				/>
+			</label>
+
+			<nav id="body-list" aria-label="Solar system bodies"></nav>
+
+			<section class="editor">
+				<header>
+					<h2 id="selected-name">Earth</h2>
+					<button id="delete" class="danger" type="button">Delete</button>
+				</header>
+
+				<form id="body-form">
+					<label
+						>Name<input id="name" type="text" maxlength="32" required
+					/></label>
+					<label>Colour<input id="color" type="color" /></label>
+					<label
+						>Diameter (km)<input
+							id="diameter"
+							type="number"
+							min="100"
+							max="2000000"
+							step="100"
+					/></label>
+					<label
+						>Orbit (days)<input
+							id="year"
+							type="number"
+							min="0.1"
+							max="100000"
+							step="0.1"
+					/></label>
+					<label
+						>Distance (km)<input
+							id="distance"
+							type="number"
+							min="1000"
+							max="5000000000"
+							step="1000"
+					/></label>
+					<label>Texture<select id="texture"></select></label>
+				</form>
+			</section>
+		</aside>
+
+		<script type="module" src="./app.js"></script>
+	</body>
+</html>

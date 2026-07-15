@@ -1,0 +1,223 @@
+:root {
+	color-scheme: dark;
+	font-family: "Avenir Next", system-ui, sans-serif;
+	background: #050505;
+	color: #f2f2ee;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	margin: 0;
+	height: 100%;
+}
+
+body {
+	overflow: hidden;
+}
+
+button,
+input,
+select {
+	font: inherit;
+}
+
+#scene {
+	position: fixed;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	display: block;
+}
+
+aside {
+	position: fixed;
+	z-index: 2;
+	top: 12px;
+	bottom: 12px;
+	left: 12px;
+	width: 300px;
+	padding: 14px;
+	overflow: auto;
+	border: 1px solid #343434;
+	border-radius: 6px;
+	background: rgba(10, 10, 10, 0.92);
+}
+
+header,
+.actions {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+}
+
+header {
+	justify-content: space-between;
+}
+
+h1,
+h2 {
+	margin: 0;
+	letter-spacing: 0;
+}
+h1 {
+	font:
+		600 22px Georgia,
+		serif;
+}
+h2 {
+	font-size: 16px;
+}
+
+button,
+input,
+select {
+	min-height: 34px;
+	border: 1px solid #3a3a3a;
+	border-radius: 4px;
+	background: #171717;
+	color: inherit;
+}
+
+button {
+	padding: 0 10px;
+	cursor: pointer;
+}
+button:hover {
+	border-color: #888;
+}
+button:disabled {
+	opacity: 0.4;
+	cursor: default;
+}
+.primary {
+	background: #f2f2ee;
+	color: #111;
+}
+.danger {
+	color: #ff8e8e;
+}
+
+.actions {
+	margin: 14px 0;
+}
+.actions button {
+	flex: 1;
+}
+
+label {
+	display: grid;
+	gap: 5px;
+	color: #aaa;
+	font-size: 12px;
+}
+
+.speed span {
+	display: flex;
+	justify-content: space-between;
+}
+output {
+	color: #fff;
+}
+input[type="range"] {
+	min-height: 24px;
+	width: 100%;
+	accent-color: #fff;
+}
+
+#body-list {
+	display: grid;
+	gap: 3px;
+	max-height: 190px;
+	margin: 14px 0;
+	overflow: auto;
+}
+
+.body {
+	display: grid;
+	grid-template-columns: 10px 1fr auto;
+	align-items: center;
+	gap: 8px;
+	min-height: 31px;
+	padding: 0 8px;
+	text-align: left;
+	border-color: transparent;
+}
+
+.body.active {
+	border-color: #aaa;
+	background: #252525;
+}
+.body small {
+	color: #777;
+}
+.dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+}
+
+.editor {
+	padding-top: 14px;
+	border-top: 1px solid #343434;
+}
+.editor header {
+	margin-bottom: 11px;
+}
+
+form {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 10px;
+}
+form label:first-child,
+form label:last-child {
+	grid-column: 1 / -1;
+}
+form input,
+form select {
+	width: 100%;
+	padding: 5px 7px;
+}
+input[type="color"] {
+	padding: 2px;
+}
+
+#tooltip {
+	position: fixed;
+	z-index: 3;
+	min-width: 160px;
+	padding: 8px 10px;
+	pointer-events: none;
+	border: 1px solid #555;
+	border-radius: 4px;
+	background: #111;
+	font-size: 12px;
+	line-height: 1.5;
+	transform: translate(12px, 12px);
+}
+
+#tooltip b,
+#tooltip span {
+	display: block;
+}
+#tooltip span {
+	color: #aaa;
+}
+
+@media (max-width: 700px) {
+	body {
+		overflow: auto;
+	}
+	aside {
+		position: relative;
+		top: auto;
+		bottom: auto;
+		left: auto;
+		width: calc(100% - 16px);
+		margin: 46vh 8px 8px;
+	}
+}

@@ -217,7 +217,8 @@ const state = { selected: "earth", running: true, speed: 1, hover: null };
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x050505);
 const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 1000);
-camera.position.set(0, 115, 190);
+const defaultCameraPosition = new THREE.Vector3(0, 230, 430);
+camera.position.copy(defaultCameraPosition);
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -226,7 +227,7 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
-controls.maxDistance = 500;
+controls.maxDistance = 900;
 
 scene.add(new THREE.AmbientLight(0xffffff, 0.35));
 scene.add(new THREE.PointLight(0xffedba, 4, 900));
@@ -236,6 +237,7 @@ scene.add(root);
 const loader = new THREE.TextureLoader();
 const textureCache = new Map();
 const records = new Map();
+const orbitRadii = new Map();
 const targets = [];
 const raycaster = new THREE.Raycaster();
 raycaster.params.Line.threshold = 2;
@@ -255,7 +257,7 @@ function bindEvents() {
 		$("#play").textContent = state.running ? "Pause" : "Start";
 	};
 	$("#reset").onclick = () => {
-		camera.position.set(0, 115, 190);
+		camera.position.copy(defaultCameraPosition);
 		controls.target.set(0, 0, 0);
 	};
 	$("#speed").oninput = (event) => {
@@ -281,6 +283,7 @@ function rebuild() {
 	root.clear();
 	records.clear();
 	targets.length = 0;
+	calculateOrbitRadii();
 
 	for (const body of bodies) {
 		if (body.type === "star") {
@@ -305,10 +308,7 @@ function rebuild() {
 }
 
 function makeBody(body) {
-	const radius =
-		body.type === "star"
-			? 10
-			: THREE.MathUtils.clamp(Math.sqrt(body.diameter) / 32, 0.8, 11);
+	const radius = bodyRadius(body);
 	const map = getTexture(body.texture);
 	const color = map ? 0xffffff : body.color;
 	const material =
@@ -371,10 +371,67 @@ function getTexture(id) {
 	return textureCache.get(id);
 }
 
+function bodyRadius(body) {
+	return THREE.MathUtils.clamp(
+		0.9 + Math.log10(body.diameter / 4879 + 1) * 3.4,
+		0.8,
+		12,
+	);
+}
+
+function calculateOrbitRadii() {
+	orbitRadii.clear();
+	const planets = bodies
+		.filter(({ type }) => type === "planet")
+		.sort((a, b) => a.distance - b.distance);
+	const systemRadii = new Map();
+
+	for (const planet of planets) {
+		const moons = bodies
+			.filter(({ type, parent }) => type === "moon" && parent === planet.id)
+			.sort((a, b) => a.distance - b.distance);
+		const planetEdge = bodyRadius(planet) * (planet.id === "saturn" ? 2.1 : 1);
+		let previousMoon = null;
+		let systemRadius = planetEdge;
+
+		for (const moon of moons) {
+			const moonRadius = bodyRadius(moon);
+			const base =
+				planetEdge +
+				moonRadius +
+				3 +
+				Math.log10(moon.distance / 100000 + 1) * 2;
+			const minimum = previousMoon
+				? orbitRadii.get(previousMoon.id) +
+					bodyRadius(previousMoon) +
+					moonRadius +
+					1.5
+				: base;
+			const radius = Math.max(base, minimum);
+			orbitRadii.set(moon.id, radius);
+			systemRadius = Math.max(systemRadius, radius + moonRadius);
+			previousMoon = moon;
+		}
+		systemRadii.set(planet.id, systemRadius);
+	}
+
+	let previousPlanet = null;
+	for (const planet of planets) {
+		const base = 24 + Math.log10(planet.distance / 57900000 + 1) * 90;
+		const extent = systemRadii.get(planet.id);
+		const minimum = previousPlanet
+			? orbitRadii.get(previousPlanet.id) +
+				systemRadii.get(previousPlanet.id) +
+				extent +
+				8
+			: base;
+		orbitRadii.set(planet.id, Math.max(base, minimum));
+		previousPlanet = planet;
+	}
+}
+
 function orbitRadius(body) {
-	if (body.type === "moon")
-		return 6 + Math.log10(body.distance / 100000 + 1) * 5;
-	return 18 + Math.log10(body.distance / 57900000 + 1) * 60;
+	return orbitRadii.get(body.id) || 0;
 }
 
 function positionBodies() {
@@ -451,12 +508,15 @@ function updateSelected(event) {
 }
 
 function addBody(type) {
+	const selected = selectedBody();
 	const parent =
 		type === "planet"
 			? "sun"
-			: selectedBody().type === "star"
+			: selected.type === "star"
 				? "earth"
-				: state.selected;
+				: selected.type === "moon"
+					? selected.parent
+					: selected.id;
 	const id = `${type}-${Math.random().toString(36).slice(2, 8)}`;
 	bodies.push({
 		id,

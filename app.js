@@ -229,8 +229,9 @@ const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.maxDistance = 900;
 
-scene.add(new THREE.AmbientLight(0xffffff, 0.35));
-scene.add(new THREE.PointLight(0xffedba, 4, 900));
+scene.add(new THREE.AmbientLight(0xffffff, 0.08));
+const sunlight = new THREE.PointLight(0xffedba, 3.8, 0, 0);
+scene.add(sunlight);
 const root = new THREE.Group();
 scene.add(root);
 

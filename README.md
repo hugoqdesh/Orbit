@@ -1,6 +1,6 @@
 # Orbit
 
-A minimal interactive 3D solar system built with Three.js.
+A minimal interactive 3D solar system built with Three.js for school.
 
 ## Run
 
